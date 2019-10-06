@@ -9,6 +9,7 @@ public abstract class AbstractSandbox extends JPanel {
 
     private Application application;
     private Point mousePos;
+    private float interpolation;
 
     AbstractSandbox(Application application){
         this.application = application;
@@ -26,13 +27,18 @@ public abstract class AbstractSandbox extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D)g;
+
         g2d.setColor(Color.WHITE);
         render(g2d, new ApplicationInfo(application), new MouseInfo(mousePos));
     }
 
+    public void updateGame(double delta){
+        update(delta, new ApplicationInfo(application), new MouseInfo(mousePos));
+    }
+
     abstract public void render(Graphics2D g2d, ApplicationInfo appInfo, MouseInfo mouseInfo);
 
-    abstract public void update(Graphics2D g2d, ApplicationInfo appInfo, MouseInfo mouseInfo);
+    abstract public void update(Double delta, ApplicationInfo appInfo, MouseInfo mouseInfo);
 
     public Application getApplication() {
         return application;
@@ -40,6 +46,14 @@ public abstract class AbstractSandbox extends JPanel {
 
     public void setApplication(Application application) {
         this.application = application;
+    }
+
+    public float getInterpolation() {
+        return interpolation;
+    }
+
+    public void setInterpolation(float interpolation) {
+        this.interpolation = interpolation;
     }
 
     public class CustomMouseListener extends MouseAdapter{
@@ -83,6 +97,10 @@ public abstract class AbstractSandbox extends JPanel {
 
         public Integer getYPos(){
             return mousePos.y;
+        }
+
+        public Point getMousePoint(){
+            return mousePos;
         }
     }
 }

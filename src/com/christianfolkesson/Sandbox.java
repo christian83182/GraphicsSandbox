@@ -12,11 +12,13 @@ public class Sandbox extends AbstractSandbox{
         super(application);
     }
 
+    Point ballPos = new Point(0,0);
+
     public void render(Graphics2D g2d, ApplicationInfo appInfo, MouseInfo mouseInfo) {
         //render logic
     }
 
-    public void update(Graphics2D g2d, ApplicationInfo appInfo, MouseInfo mouseInfo) {
+    public void update(Double delta, ApplicationInfo appInfo, MouseInfo mouseInfo) {
         //update logic
     }
 }
