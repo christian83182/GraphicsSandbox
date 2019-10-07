@@ -26,7 +26,7 @@ public class Sandbox extends AbstractSandbox{
     }
 
     //The update() method will be called whenever the program's logic should be updated.
-    public void update(ApplicationInfo appInfo, MouseInfo mouseInfo) {
+    public void update(ApplicationInfo appInfo, MouseInfo mouseInfo, KeyboardInfo keyboardInfo) {
         //update logic
     }
 }

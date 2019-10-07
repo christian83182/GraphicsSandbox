@@ -4,8 +4,12 @@ package com.christianfolkesson;
 //Import used packages. Swing and AWT are used for window operations. MouseAdapter and MouseEvent are used to track the mouse position.
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.HashSet;
+import java.util.Set;
 
 //The class is declared abstract as it has abstract methods. An instance of the class cannot be created.
 public abstract class AbstractSandbox extends JPanel {
@@ -14,6 +18,8 @@ public abstract class AbstractSandbox extends JPanel {
     //"interpolation" gives an interpolation value for rendering.
     private Application application;
     private Point mousePos;
+    private boolean isMousePressed;
+    private Set<String> pressedKeys;
     private float interpolation;
 
 
@@ -21,7 +27,12 @@ public abstract class AbstractSandbox extends JPanel {
     AbstractSandbox(Application application){
         this.application = application;
         this.mousePos = new Point(0,0);
+        this.isMousePressed = false;
+        this.pressedKeys = new HashSet<>();
+
         this.addMouseMotionListener(new CustomMouseListener());
+        this.addMouseListener(new CustomMouseListener());
+        this.addKeyListener(new CustomKeyboardListener());
         //It's common practice to split the configuration of the window from the object's constructor.
         init();
     }
@@ -31,6 +42,7 @@ public abstract class AbstractSandbox extends JPanel {
     private void init(){
         //SetPreferredSize() sets the window's size.
         this.setPreferredSize(new Dimension(Sandbox.STARTING_WIDTH,Sandbox.STARTING_HEIGHT));
+        this.setFocusable(true);
     }
 
 
@@ -50,7 +62,7 @@ public abstract class AbstractSandbox extends JPanel {
     //A method that will be called whenever the game's logic should be updated.
     public void updateGame(){
         //Calling an abstract update() method. A non-abstract child class would provide an implementation for this method.
-        update(new ApplicationInfo(application), new MouseInfo(mousePos));
+        update(new ApplicationInfo(application), new MouseInfo(mousePos, isMousePressed), new KeyboardInfo(pressedKeys));
     }
 
 
@@ -59,7 +71,7 @@ public abstract class AbstractSandbox extends JPanel {
 
 
     //The method is declared abstract since no implementation is given. A non-abstract child class would have to provide an implementation.
-    abstract public void update(ApplicationInfo appInfo, MouseInfo mouseInfo);
+    abstract public void update(ApplicationInfo appInfo, MouseInfo mouseInfo, KeyboardInfo keyboardInfo);
 
 
     //Getter and Setter methods for various memeber variables. This is done instead of accessing the variables directly to maintain encapsulation.
@@ -83,6 +95,34 @@ public abstract class AbstractSandbox extends JPanel {
             super.mouseMoved(e);
             //Update the outer class' mousePos member variable.
             mousePos = new Point(e.getX(),e.getY());
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+            super.mousePressed(e);
+            isMousePressed = true;
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            super.mouseReleased(e);
+            isMousePressed = false;
+        }
+    }
+
+    private class CustomKeyboardListener extends KeyAdapter{
+        @Override
+        public void keyPressed(KeyEvent e) {
+            super.keyPressed(e);
+            pressedKeys.add(Character.toString(e.getKeyChar()));
+            System.out.println("Key pressed");
+        }
+
+        @Override
+        public void keyReleased(KeyEvent e) {
+            super.keyReleased(e);
+            pressedKeys.remove(Character.toString(e.getKeyChar()));
+            System.out.println("Key released");
         }
     }
 
@@ -112,9 +152,11 @@ public abstract class AbstractSandbox extends JPanel {
     //A private inner class used as a data structure for passing information through the update() and render() methods.
     public class MouseInfo{
         private Point mousePos;
+        private boolean isPressed;
 
-        MouseInfo(Point mousePos){
+        MouseInfo(Point mousePos, boolean isPressed){
             this.mousePos = mousePos;
+            this.isPressed = isPressed;
         }
 
         public Integer getXPos(){
@@ -127,6 +169,28 @@ public abstract class AbstractSandbox extends JPanel {
 
         public Point getMousePoint(){
             return mousePos;
+        }
+
+        public Boolean isPressed() {
+            return isPressed;
+        }
+    }
+
+
+    //A private inner class used as a data structure for passing information through the update() and render() methods.
+    public class KeyboardInfo{
+        private Set<String> pressedKeys;
+
+        KeyboardInfo(Set<String> pressedKeys){
+            this.pressedKeys = pressedKeys;
+        }
+
+        public boolean isKeyPressed(String key){
+            return this.pressedKeys.contains(key);
+        }
+
+        public Set<String> getPressedKeys(){
+            return this.pressedKeys;
         }
     }
 }
